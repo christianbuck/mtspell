@@ -21,7 +21,7 @@ class SpellChecker(object):
     def tokens(self, line):
         return line.strip().split()
 
-    def close_words(self, word, max_distance=2):
+    def close_words(self, word, max_distance=1):
         candidates = []
         for w in self.words:
             distance = Levenshtein.distance(w, word)
