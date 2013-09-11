@@ -1,0 +1,6 @@
+How to use it:
+
+python JaccardDistance.py word1 word2 ngramOrder
+e.g.
+python JaccardDistance.py form from 3
+

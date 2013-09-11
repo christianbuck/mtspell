@@ -1,0 +1,11 @@
+How to run it:
+
+python WeightedLev.py correctWord mispelledWord weightedFlag SubstitutionCostMatrix InsertionCostMatrix DeletionCostMatrix
+
+where weightedFlag:
+True: compute weighted Lev. Distance
+False: compute standard Lev. Distance
+
+e.g.
+python WeightedLev.py task tsk True resources/OddM resources/InsM resources/DelM
+
