@@ -4,6 +4,7 @@ import sys
 import Levenshtein
 from operator import itemgetter
 import math
+import fuzzy
 
 # from norvig.com
 def tokens(text):
@@ -78,6 +79,16 @@ class CountFeature(WordFeature):
         else:
             return self.vocabulary[correction]
 
+class SoundMapFeature(WordFeature):
+    """ Uses soundex algorithm to find possible homophones """
+    _name = "SoundMap"
+
+    def __init__(self):
+        self.soundex = fuzzy.Soundex(4)
+        
+    def value(self, word, correction):
+        return int(self.soundex("%s" %word) == self.soundex("%s" %correction))
+    
 def write_hypergraph(sentence, filehandle):
     """ sentence is supposed to be a list of lists, where each position holds
         all the options for the word at that position """
@@ -103,11 +114,18 @@ if __name__ == '__main__':
     spell_checker = SpellChecker(vocabulary)
     spell_checker.register_feature(EditDistanceFeature())
     spell_checker.register_feature(CountFeature(vocabulary))
+    spell_checker.register_feature(SoundMapFeature())
+    #for line in sys.stdin:
+    while 1:
+        try:
+            line = sys.stdin.readline()
+        except KeyboardInterrupt:
+            break
 
-    for line in sys.stdin:
-        line = line.strip()
-        #print sentence
-        corrections = spell_checker.process(line)
-        #print corrections
-        print write_hypergraph(corrections, sys.stdout)
-        #write_hypergraph(sentence, sys.stdout)
+        if not line:
+            break
+        else:
+            line = line.strip()
+            corrections = spell_checker.process(line)
+            #print corrections
+            print write_hypergraph(corrections, sys.stdout)
