@@ -93,6 +93,7 @@ class SoundMapFeature(WordFeature):
         self.soundex = fuzzy.Soundex(4)
 
     def value(self, word, correction):
+        "work around an error in 'fuzzy' which changes the unmutable string"
         return int(self.soundex("%s" %word) == self.soundex("%s" %correction))
 
 def write_hypergraph(sentence, filehandle):
