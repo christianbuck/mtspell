@@ -20,54 +20,29 @@
 # Author: Marco Turchi (Fondazione Bruno Kessler, Trento Italy)
 # Date: 11/09/2013
 
-from pprint import pprint
-import math, sys
-
-
 class Jaccard(object):
+    """ Extracts character ngrams and computes Jaccard distance """
+
     def __init__(self, ngramOrd):
-	self.ngram = int(ngramOrd)
+        self.ngramOrd = int(ngramOrd)
 
+    def _ngrams(self, s, verbose=False):
+        if verbose and len(s) - self.ngram < 0:
+            sys.stderr.write("word '%s' too short to extract %d-grams.\n" \
+                                                            %(s, self.ngram))
+        return [s[i:i+self.ngramOrd] for i in range(len(s) - self.ngramOrd+1)]
 
-    def _extractNgrams(self, s):
-	x = len(s)
-	l1 = []
-	if((x - self.ngram) <0):
-		print "word: "+s+" too short for extracting "+str(self.ngram)+"-grams"
-		sys.exit(0)
-	else:
-		for i in range(x-self.ngram+1):
-			#for j in range(self.ngram):
-			#print i
-			ngram = s[i : (i+self.ngram)]
-			l1.append(ngram)
-			#print ngram
-	#pprint(l1)
-	return l1
-   
+    def dist(self, word1, word2):
+        ngrams1 = set(self._ngrams(word1))
+        ngrams2 = set(self._ngrams(word2))
+        print ngrams1, ngrams2
+        ngram_intersection = ngrams1.intersection(ngrams2)
+        ngram_union = ngrams1.union(ngrams2)
 
-    def _dist(self):
-	#extract ngrams correct
-	l1List = self._extractNgrams(self.s1)
-        l2List = self._extractNgrams(self.s2)
-	interL = set(l1List).intersection( set(l2List) )
-	#print len(interL)
-	unionL = set(l1List).union(set(l2List))
-	#print len(unionL)
-	#pprint(unionL)
-	val = 1- float(len(interL))/float(len(unionL))
-	return val
-
-
-    def dist(self, correct, wrong):
-	self.s1 = wrong
-        self.s2 = correct
-	val = self._dist()	
-	#print val
-        return val
-
-
-
+        jaccard = 1.0
+        if ngram_union:
+            jaccard = 1 - float(len(ngram_intersection))/float(len(ngram_union))
+        return jaccard
 
 if __name__ == "__main__":
     import sys
@@ -75,26 +50,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('correctWord')
     parser.add_argument('wrongWord')
-    parser.add_argument('ngramOrder')  
+    parser.add_argument('ngramOrder', type=int, default=3)
 
     args = parser.parse_args(sys.argv[1:])
 
     myJac = Jaccard(args.ngramOrder)
     print myJac.dist(args.correctWord, args.wrongWord)
-    #print mylev.editops
-
-   # file = open(args.filename,'r')
-
-    #oddMFile = open(args.OddMatrix, 'w')
-   # insMFile = open(args.InsertionMatrix, 'w')
-   # delMFile = open(args.DeletionMatrix, 'w')
-
-#read the file
-#compute edit and parse the string and then compute statistics
-        
-
-
-
-    #mylev = Levenshtein(args.string1, args.string2)
-    #print mylev.dist()
-    #print mylev.editops()
