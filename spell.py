@@ -2,9 +2,11 @@
 import re
 import sys
 import Levenshtein
-from operator import itemgetter
-import math
-import fuzzy
+from features.distance import CountFeature, \
+                              EditDistanceFeature, \
+                              JaroWinklerDistanceFeature, \
+                              SoundMapFeature
+from features.jaccard import Jaccard as JaccardDistanceFeature
 
 # from norvig.com
 def tokens(text):
@@ -49,52 +51,6 @@ class SpellChecker(object):
         sentence = map(spell_checker.close_words, sentence)
         return sentence
 
-class WordFeature(object):
-    """ Abstract base class of all word-level features """
-    _name = "WordFeature"
-
-    def name(self):
-        """ Name of the feature. Should not contain spaces """
-        return self._name
-
-    def value(self, word, correction):
-        """ Feature value, for example a distance """
-        return 0
-
-class EditDistanceFeature(WordFeature):
-    _name = "EditDistance"
-
-    def value(self, word, correction):
-        return Levenshtein.distance(word, correction)
-
-class JaroWinklerDistanceFeature(WordFeature):
-    _name = "JaroWinklerDistance"
-
-    def value(self, word, correction):
-        return Levenshtein.jaro_winkler(word, correction)
-
-class CountFeature(WordFeature):
-    _name = "Count"
-
-    def __init__(self, vocabulary):
-        self.vocabulary = vocabulary
-
-    def value(self, word, correction):
-        if not correction in self.vocabulary:
-            return 0
-        else:
-            return self.vocabulary[correction]
-
-class SoundMapFeature(WordFeature):
-    """ Uses soundex algorithm to find possible homophones """
-    _name = "SoundMap"
-
-    def __init__(self):
-        self.soundex = fuzzy.Soundex(4)
-
-    def value(self, word, correction):
-        "work around an error in 'fuzzy' which changes the unmutable string"
-        return int(self.soundex("%s" %word) == self.soundex("%s" %correction))
 
 def write_hypergraph(sentence, filehandle):
     """ sentence is supposed to be a list of lists, where each position holds
@@ -123,17 +79,10 @@ if __name__ == '__main__':
     spell_checker.register_feature(JaroWinklerDistanceFeature())
     spell_checker.register_feature(CountFeature(vocabulary))
     spell_checker.register_feature(SoundMapFeature())
-    #for line in sys.stdin:
-    while 1:
-        try:
-            line = sys.stdin.readline()
-        except KeyboardInterrupt:
-            break
+    spell_checker.register_feature(JaccardDistanceFeature(2))
 
-        if not line:
-            break
-        else:
-            line = line.strip()
-            corrections = spell_checker.process(line)
-            #print corrections
-            print write_hypergraph(corrections, sys.stdout)
+    for line in sys.stdin:
+        line = line.strip()
+        corrections = spell_checker.process(line)
+        #print corrections
+        print write_hypergraph(corrections, sys.stdout)

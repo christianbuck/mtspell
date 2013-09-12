@@ -20,10 +20,13 @@
 # Author: Marco Turchi (Fondazione Bruno Kessler, Trento Italy)
 # Date: 11/09/2013
 
-class Jaccard(object):
+from wordfeature import WordFeature
+class Jaccard(WordFeature):
     """ Extracts character ngrams and computes Jaccard distance """
+    _name = "JaccardDistance"
 
     def __init__(self, ngramOrd):
+        assert ngramOrd > 0, "ngram size must be positive"
         self.ngramOrd = int(ngramOrd)
 
     def _ngrams(self, s, verbose=False):
@@ -32,10 +35,10 @@ class Jaccard(object):
                                                             %(s, self.ngram))
         return [s[i:i+self.ngramOrd] for i in range(len(s) - self.ngramOrd+1)]
 
-    def dist(self, word1, word2):
+    def value(self, word1, word2):
         ngrams1 = set(self._ngrams(word1))
         ngrams2 = set(self._ngrams(word2))
-        print ngrams1, ngrams2
+        #print ngrams1, ngrams2
         ngram_intersection = ngrams1.intersection(ngrams2)
         ngram_union = ngrams1.union(ngrams2)
 
@@ -55,4 +58,4 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
 
     myJac = Jaccard(args.ngramOrder)
-    print myJac.dist(args.correctWord, args.wrongWord)
+    print myJac.value(args.correctWord, args.wrongWord)
