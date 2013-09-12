@@ -1,11 +1,21 @@
 from wordfeature import WordFeature
 import Levenshtein
+from levenshtein import WeightedLevenshtein
 
 class EditDistanceFeature(WordFeature):
     _name = "EditDistance"
 
     def value(self, word, correction):
         return Levenshtein.distance(word, correction)
+
+class WeightedEditDistanceFeature(WordFeature):
+    _name = "WeightedEditDistance"
+
+    def __init__(self, OddFile=None, InsFile=None, DelFile=None):
+        self.Levenshtein = WeightedLevenshtein(OddFile, InsFile, DelFile)
+
+    def value(self, word, correction):
+        return self.Levenshtein.dist(word, correction)
 
 class JaroWinklerDistanceFeature(WordFeature):
     _name = "JaroWinklerDistance"

@@ -4,6 +4,7 @@ import sys
 import Levenshtein
 from features.distance import CountFeature, \
                               EditDistanceFeature, \
+                              WeightedEditDistanceFeature, \
                               JaroWinklerDistanceFeature, \
                               SoundMapFeature
 from features.jaccard import Jaccard as JaccardDistanceFeature
@@ -76,6 +77,8 @@ if __name__ == '__main__':
     vocabulary = Vocabulary('english.vocab')
     spell_checker = SpellChecker(vocabulary)
     spell_checker.register_feature(EditDistanceFeature())
+    spell_checker.register_feature(WeightedEditDistanceFeature(
+        "resources/OddM", "resources/InsM", "resources/DelM" ))
     spell_checker.register_feature(JaroWinklerDistanceFeature())
     spell_checker.register_feature(CountFeature(vocabulary))
     spell_checker.register_feature(SoundMapFeature())
