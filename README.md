@@ -21,7 +21,7 @@ Install python-levenshtein:
 sudo apt-get install python-levenshtein
 ````
 
-Install fuzzy python library (for source, the distributed package is terribly broken!):
+Install fuzzy python library (from source, the distributed package is terribly broken!):
 ```bash
 hg clone http://bitbucket.org/yougov/fuzzy
 cd fuzzy
