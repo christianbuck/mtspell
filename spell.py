@@ -67,6 +67,12 @@ class EditDistanceFeature(WordFeature):
     def value(self, word, correction):
         return Levenshtein.distance(word, correction)
 
+class JaroWinklerDistanceFeature(WordFeature):
+    _name = "JaroWinklerDistance"
+
+    def value(self, word, correction):
+        return Levenshtein.jaro_winkler(word, correction)
+
 class CountFeature(WordFeature):
     _name = "Count"
 
@@ -85,10 +91,10 @@ class SoundMapFeature(WordFeature):
 
     def __init__(self):
         self.soundex = fuzzy.Soundex(4)
-        
+
     def value(self, word, correction):
         return int(self.soundex("%s" %word) == self.soundex("%s" %correction))
-    
+
 def write_hypergraph(sentence, filehandle):
     """ sentence is supposed to be a list of lists, where each position holds
         all the options for the word at that position """
@@ -113,6 +119,7 @@ if __name__ == '__main__':
     vocabulary = Vocabulary('english.vocab')
     spell_checker = SpellChecker(vocabulary)
     spell_checker.register_feature(EditDistanceFeature())
+    spell_checker.register_feature(JaroWinklerDistanceFeature())
     spell_checker.register_feature(CountFeature(vocabulary))
     spell_checker.register_feature(SoundMapFeature())
     #for line in sys.stdin:
