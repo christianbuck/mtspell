@@ -62,20 +62,20 @@ class Levenshtein(object):
                 #insert_cost  = Q[j+1][i][0] + 1
                 #delete_cost  = Q[j][i+1][0] + 1
                 #replace_cost = Q[j][i][0] + (c1 != c2)
-		costIns = 0 
+		costIns = 1
 		if(self.InsD.has_key(c1) == True):
-			costIns = self.InsD[c1]
-		costDel = 0
+			costIns = (1-self.InsD[c1])
+		costDel = 1
 		if(self.DelD.has_key(c2) == True):
-			costDel = self.DelD[c2]
-		costOdd = 0
+			costDel = (1-self.DelD[c2])
+		costOdd = 1
 		if(self.OddD.has_key(c1+c2) == True):
-			costOdd = self.OddD[c1+c2]
+			costOdd = (1-self.OddD[c1+c2])
 		#print self.weighted
 		if(self.weighted == "True"):
                 	insert_cost  = Q[j+1][i][0] + (1*costIns)
                 	delete_cost  = Q[j][i+1][0] + (1*costDel)
-                	replace_cost = Q[j][i][0] + ((c1 != c2)* costOdd)
+                	replace_cost = Q[j][i][0] + ((c1 != c2) * costOdd)
 		else:
 			insert_cost  = Q[j+1][i][0] + 1
                         delete_cost  = Q[j][i+1][0] + 1
