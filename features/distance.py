@@ -47,3 +47,10 @@ class SoundMapFeature(WordFeature):
         "work around an error in 'fuzzy' which changes the unmutable string"
         return int(self.soundex("%s" %word) == self.soundex("%s" %correction))
 
+class SplittedWordFeature(WordFeature):
+    """ Splits word and looks for possible candidates (e.g. mydog => my day, my dog) """
+    _name = "SplittedWord"
+
+    def value(self, word, correction):
+	return int(" " in correction)
+
