@@ -1,0 +1,11 @@
+they <ERR targ=had> hade </ERR> <ERR targ=cleaned> cleand </ERR> the river and made it very wide <ERR targ=for> fore </ERR> the ducks
+The <ERR targ=leaves> leavs </ERR> are small and the <ERR targ=apples> apple </ERR> fall in <ERR targ=autumn> aotum </ERR> time
+I kissed a girl one night, and <ERR targ=her> here </ERR> <ERR targ=eyes> iyes </ERR> were burning blue
+My <ERR targ=sister> siter </ERR> <ERR targ=goes> go </ERR> to Tonbury.
+there had <ERR targ=been> bean </ERR> a lot of people <ERR targ=knocked> nock </ERR> down by a car so they called it the murder car.
+the <ERR targ=wheel> weel </ERR> has the rope on it some sallies are green and the <ERR targ=others> other </ERR> are red white and blue.
+You <ERR targ=ring> rings </ERR> like this.
+<ERR targ=I'm> I </ERR> not going out tonight with him, I don't want to see him again.
+Bernard is ill in bed and the <ERR targ=Doctor> Docter </ERR> is coming to see him
+<ERR targ=what> whats </ERR> are you doing tonight? she said. She will have to do a job for her <ERR targ=manager> maneger </ERR>.
+I <ERR targ=tried> trid </ERR> to <ERR targ=catch> cach </ERR> my little yellow <ERR targ=bird> brid </ERR> but he flew in to the golden yellow sun.
