@@ -138,10 +138,10 @@ class PosWeightedLevenshtein(object):
         for linenr, line in enumerate(Q):
             print linenr, line
 
-    def dist(self, correct, wrong, weighted ):
+    def dist(self, correct, wrong ):
 	self.s1 = wrong
         self.s2 = correct
-	self.weighted = weighted
+	
         self.Q = self._matrix()
 
         return self._dist
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('correctWord')
     parser.add_argument('wrongWord')
-    parser.add_argument('weighted')
+    #parser.add_argument('weighted')
     parser.add_argument('OddMatrix')
     parser.add_argument('InsertionMatrix')
     parser.add_argument('DeletionMatrix')
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
 
     mylev = PosWeightedLevenshtein( args.OddMatrix, args.InsertionMatrix, args.DeletionMatrix)
-    mylev.dist(args.correctWord, args.wrongWord, args.weighted)
+    mylev.dist(args.correctWord, args.wrongWord)
     #print mylev.editops()
     print mylev.rescoring()
 
