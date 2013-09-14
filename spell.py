@@ -18,26 +18,31 @@ def tokens(text):
     return re.findall('[a-z]+', text.lower())
 
 class Vocabulary(dict):
-    def __init__(self, filename):
+    def __init__(self, filename, min_count=0):
         for line in open(filename):
             word, count = line.split()
-            self[word] = int(count)
+            count = int(count)
+            if count >= min_count:
+                self[word] = count
+        sys.stderr.write("read %d entries from %s with min count %d \n"
+                         %(len(self), filename, min_count))
 
 class SpellChecker(object):
-    def __init__(self, vocabulary, allowSplit):
+    def __init__(self, vocabulary, max_distance=2, allowSplit=False):
         self.words = vocabulary
         self._word_features = []
         self.allow_split = allowSplit
+        self.max_distance = max_distance
 
     def tokens(self, line):
         return line.strip().split()
 
     def splits(self, text, start=0, L=20):
         "Return a list of all (first, rest) pairs; with start<=len(first)<=L."
-        return [(text[:i], text[i:]) 
+        return [(text[:i], text[i:])
                for i in range(start, min(len(text), L)+1)]
 
-    def make_candidates(self, word, keep_word=True, max_distance=2, allow_split=True):
+    def _make_candidates(self, word, keep_word, max_distance, allow_split):
         candidates = []
         if keep_word:
            candidates.append(word)
@@ -48,24 +53,28 @@ class SpellChecker(object):
         if allow_split:
             for leftsplit, rightsplit in self.splits(word):
                 if leftsplit and rightsplit:
-                    for left_candidate in self.make_candidates(leftsplit,
-                                                    keep_word=False,
+                    for left_candidate in self._make_candidates(leftsplit,
+                                                    keep_word = False,
                                                     max_distance = max_distance-1,
-                                                    allow_split=False):
-                        for right_candidate in self.make_candidates(rightsplit,
-                                                    keep_word=False,
+                                                    allow_split = False):
+                        for right_candidate in self._make_candidates(rightsplit,
+                                                    keep_word = False,
                                                     max_distance = max_distance-1,
-                                                    allow_split=False):
+                                                    allow_split = False):
                             candidates.append("%s %s" %(left_candidate, right_candidate))
         return list(set(candidates)) # unique candidates
-    
+
     def register_feature(self, feature):
         self._word_features.append(feature)
 
     def process(self, sentence):
         "sentence is a string"
+        sentence = "%s%s" %(sentence[0].lower(), sentence[1:])
         sentence = tokens(line)
-        candidates = map(self.make_candidates,sentence)
+        candidates = [self._make_candidates(word, keep_word=True,
+                                            max_distance = self.max_distance,
+                                            allow_split = self.allow_split) for
+                                            word in sentence]
         assert len(sentence) == len(candidates)
         scores = []
         for word, word_candidates in izip(sentence, candidates):
@@ -74,7 +83,7 @@ class SpellChecker(object):
             scores.append(word_features)
         assert len(sentence) == len(scores)
         return scores, candidates
-        
+
     def score(self, word, candidates):
         scores = []
         for candidate in candidates:
@@ -122,9 +131,20 @@ def write_hypergraph(scores, word_candidates, filehandle):
     filehandle.write("[%d] </s> ||| \n" %(n_vertices-2))
 
 if __name__ == '__main__':
-    vocabulary = Vocabulary('voc.counts')
-    allowSplit=True
-    spell_checker = SpellChecker(vocabulary, allowSplit)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-dist', type=int,
+                        help="maximum edit distancce for candidates", default=2)
+    parser.add_argument('-mincount', type=int,
+                        help="minimum count for dictionary entries", default=100)
+    parser.add_argument('-counts', help="dictionary with counts", default="dict/english.counts")
+    parser.add_argument('-split', action='store_true', help='allow splits', default=False)
+    args = parser.parse_args(sys.argv[1:])
+
+
+    vocabulary = Vocabulary(args.counts, args.mincount)
+    spell_checker = SpellChecker(vocabulary, args.dist, args.split)
+
     spell_checker.register_feature(EditDistanceFeature())
     spell_checker.register_feature(WeightedEditDistanceFeature(
         "resources/OddM", "resources/InsM", "resources/DelM" ))
@@ -132,7 +152,7 @@ if __name__ == '__main__':
     spell_checker.register_feature(CountFeature(vocabulary))
     spell_checker.register_feature(SoundMapFeature())
     spell_checker.register_feature(JaccardDistanceFeature(2))
-    if allowSplit:
+    if args.split:
         spell_checker.register_feature(SplittedWordFeature())
 
     #for line in sys.stdin:

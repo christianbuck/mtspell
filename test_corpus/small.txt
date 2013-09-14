@@ -1,0 +1,3 @@
+they <ERR targ=had> hade </ERR> <ERR targ=cleaned> cleand </ERR> the river and made it very wide <ERR targ=for> fore </ERR> the ducks
+The <ERR targ=leaves> leavs </ERR> are small and the <ERR targ=apples> apple </ERR> fall in <ERR targ=autumn> aotum </ERR> time
+I kissed a girl one night, and <ERR targ=her> here </ERR> <ERR targ=eyes> iyes </ERR> were burning blue
