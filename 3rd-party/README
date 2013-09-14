@@ -1,0 +1,13 @@
+Third-party Software
+
+CMPH-2.0: C-libary for minimal perfect hashing 
+required by: faroo
+
+To install (faroo assumes that cmph is installed like this)
+- MSPELLTOP=<top level mtspell directory>
+% cd cmph-2.0
+% ./configure --prefix=${MTSPELLTOP}
+% make
+% make install
+
+Then add ${MTSPELLTOP}/lib to your LD_LIBRARY_PATH.
