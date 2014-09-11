@@ -24,6 +24,7 @@ while (1) {
   $_ = <>; $nr++;
   last if !defined $_; # end of input
   chomp;
+  next if /^None$/;
   my ($nvert, $narcs) = split / /;
   my @outarcs = ();
   for my $n (0..$nvert-1) {
