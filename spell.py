@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import re
 import sys
@@ -41,11 +42,12 @@ class Vocabulary(dict):
                          %(len(self), filename, min_count))
 
 class SpellChecker(object):
-    def __init__(self, vocabulary, max_distance=2, allowSplit=False):
+    def __init__(self, vocabulary, max_distance=2, max_reldistance=0.4, allowSplit=False):
         self.words = vocabulary
         self._word_features = []
         self.allow_split = allowSplit
         self.max_distance = max_distance
+        self.max_reldistance = max_reldistance
 
     def tokens(self, line):
         return line.strip().split()
@@ -55,16 +57,18 @@ class SpellChecker(object):
         return [(text[:i], text[i:])
                for i in range(start, min(len(text), L)+1)]
 
-    def _make_candidates(self, word, keep_word, max_distance, allow_split):
+    def _make_candidates(self, word, keep_word, max_distance, max_reldistance, allow_split):
         candidates = []
         if keep_word:
            candidates.append(word)
         # naive production of close-edit candidates
         for w in self.words:
-            # sys.stderr.write("considering distance of %s to %s\n" %(word, w))
-            if w != "":
-                if Levenshtein.distance(w, word) <= max_distance: # max distance?
-                    candidates.append(w)
+          # sys.stderr.write("considering distance of %s to %s\n" %(word, w))
+          if w != "":
+            d=Levenshtein.distance(w, word)
+            rd=float(d)/float(len(w))
+            if d <= max_distance and rd <= max_reldistance: # max distance?
+              candidates.append(w)
         if allow_split:
             for leftsplit, rightsplit in self.splits(word):
                 if leftsplit and rightsplit:
@@ -90,6 +94,7 @@ class SpellChecker(object):
         sys.stderr.write(" tokens: %s\n" % (":".join(sentence)))
         candidates = [self._make_candidates(word, keep_word=True,
                                             max_distance = self.max_distance,
+                                            max_reldistance = self.max_reldistance,
                                             allow_split = self.allow_split) for
                                             word in sentence]
         assert len(sentence) == len(candidates)
@@ -151,7 +156,9 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-dist', type=int,
-                        help="maximum edit distancce for candidates", default=2)
+                        help="maximum edit distance for candidates", default=2)
+    parser.add_argument('-reldist', type=float,
+                        help="maximum for the fraction (edit distance)/(length of candidate)", default=0.4)
     parser.add_argument('-mincount', type=int,
                         help="minimum count for dictionary entries", default=100)
     parser.add_argument('-counts', help="dictionary with counts", default="dict/english.counts")
@@ -160,7 +167,7 @@ if __name__ == '__main__':
 
 
     vocabulary = Vocabulary(args.counts, args.mincount)
-    spell_checker = SpellChecker(vocabulary, args.dist, args.split)
+    spell_checker = SpellChecker(vocabulary, args.dist, args.reldist, args.split)
 
     spell_checker.register_feature(EditDistanceFeature())
     # locate our resources/ relative to this very script
