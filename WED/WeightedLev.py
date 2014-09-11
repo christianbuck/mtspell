@@ -18,8 +18,10 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #***********************************************************************
 # Author: Marco Turchi (FBK) on the base of the code written by Christian Buck (University of Edinburgh)
+# UTF-8 processing by Ondrej Bojar
 # Date: 11/09/2013
 
+import codecs
 from pprint import pprint
 import math
 
@@ -37,7 +39,7 @@ class Levenshtein(object):
 	self.DelD = self._loadFile(DelFile)
 
     def _loadFile(self, filename):
-	file = open(filename, 'r')
+	file = codecs.open(filename, 'r', 'utf-8')
 	d = {}
     	while 1:
         	line = file.readline()
@@ -124,9 +126,9 @@ if __name__ == "__main__":
     import sys
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('correctWord')
-    parser.add_argument('wrongWord')
-    parser.add_argument('weighted')
+    parser.add_argument('correctWord', type=lambda s: unicode(s, 'utf8'))
+    parser.add_argument('wrongWord', type=lambda s: unicode(s, 'utf8'))
+    parser.add_argument('weighted', type=lambda s: unicode(s, 'utf8'))
     parser.add_argument('OddMatrix')
     parser.add_argument('InsertionMatrix')
     parser.add_argument('DeletionMatrix')
