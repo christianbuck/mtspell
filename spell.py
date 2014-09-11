@@ -24,7 +24,7 @@ def tokens(text):
     #Normalize to lowercase."""
     #return re.findall(u'[a-z]+', text.lower())
     """List all tokens as delimited by whitespace"""
-    return text.lower().split()
+    return text.split()
 
 class Vocabulary(dict):
     def __init__(self, filename, min_count=0):
