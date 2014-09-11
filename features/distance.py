@@ -44,13 +44,19 @@ class SoundMapFeature(WordFeature):
         self.soundex = fuzzy.Soundex(4)
 
     def value(self, word, correction):
+        import string
         "work around an error in 'fuzzy' which changes the unmutable string"
-        return int(self.soundex("%s" %word) == self.soundex("%s" %correction))
+        pair = [ "%s" % w for w in (word, correction) ]
+        # convert to plain ascii for soundex, dropping other chars
+        for i in (0,1):
+          pair[i] = filter(lambda x: ord(x) < 127, pair[i])
+        # covert each word to its soundex and check them for identity
+        return int(self.soundex(pair[0]) == self.soundex(pair[1]))
 
 class SplittedWordFeature(WordFeature):
     """ Splits word and looks for possible candidates (e.g. mydog => my day, my dog) """
     _name = "SplittedWord"
 
     def value(self, word, correction):
-	return int(" " in correction)
+        return int(" " in correction)
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+
 import re
 import sys
+import os
 import Levenshtein
 from itertools import izip
 from features.distance import CountFeature, \
@@ -11,15 +13,25 @@ from features.distance import CountFeature, \
                               SplittedWordFeature
 from features.jaccard import Jaccard as JaccardDistanceFeature
 
+# assume utf8 as input
+import codecs
+sys.stdin = codecs.getreader('UTF-8')(sys.stdin)
+
 # from norvig.com
 def tokens(text):
-    """List all the word tokens (consecutive letters) in a text.
-    Normalize to lowercase."""
-    return re.findall('[a-z]+', text.lower())
+    #"""List all the word tokens (consecutive letters) in a text.
+    #Normalize to lowercase."""
+    #return re.findall(u'[a-z]+', text.lower())
+    """List all tokens as delimited by whitespace"""
+    return text.lower().split()
 
 class Vocabulary(dict):
     def __init__(self, filename, min_count=0):
-        for line in open(filename):
+        sys.stderr.write("reading %s\n" % filename)
+        nr = 0
+        for line in codecs.open(filename, "r", "utf-8"):
+            nr += 1
+            # sys.stderr.write("line %i: %s\n" %(nr, line))
             word, count = line.split()
             count = int(count)
             if count >= min_count:
@@ -46,7 +58,9 @@ class SpellChecker(object):
         candidates = []
         if keep_word:
            candidates.append(word)
+        # naive production of close-edit candidates
         for w in self.words:
+            # sys.stderr.write("considering distance of %s to %s\n" %(word, w))
             if w != "":
                 if Levenshtein.distance(w, word) <= max_distance: # max distance?
                     candidates.append(w)
@@ -69,8 +83,10 @@ class SpellChecker(object):
 
     def process(self, sentence):
         "sentence is a string"
+        sys.stderr.write("processing: %s\n" % sentence)
         sentence = "%s%s" %(sentence[0].lower(), sentence[1:])
         sentence = tokens(line)
+        sys.stderr.write(" tokens: %s\n" % (":".join(sentence)))
         candidates = [self._make_candidates(word, keep_word=True,
                                             max_distance = self.max_distance,
                                             allow_split = self.allow_split) for
@@ -146,8 +162,10 @@ if __name__ == '__main__':
     spell_checker = SpellChecker(vocabulary, args.dist, args.split)
 
     spell_checker.register_feature(EditDistanceFeature())
+    # locate our resources/ relative to this very script
+    resourcesdir = os.path.dirname(os.path.realpath(__file__))+"/resources/"
     spell_checker.register_feature(WeightedEditDistanceFeature(
-        "resources/OddM", "resources/InsM", "resources/DelM" ))
+        resourcesdir+"OddM", resourcesdir+"InsM", resourcesdir+"DelM" ))
     spell_checker.register_feature(JaroWinklerDistanceFeature())
     spell_checker.register_feature(CountFeature(vocabulary))
     spell_checker.register_feature(SoundMapFeature())
