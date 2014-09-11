@@ -16,6 +16,7 @@ from features.jaccard import Jaccard as JaccardDistanceFeature
 # assume utf8 as input
 import codecs
 sys.stdin = codecs.getreader('UTF-8')(sys.stdin)
+sys.stdout = codecs.getwriter('UTF-8')(sys.stdout);
 
 # from norvig.com
 def tokens(text):
